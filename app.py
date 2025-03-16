@@ -1,17 +1,19 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from connections.conn import get_db_connection 
 import joblib
 import numpy as np
 
 app = Flask(__name__)
+app.secret_key = 'rahasia123' 
 
+# Load model
+model = joblib.load("model/svm_model.pkl")
+model_full = joblib.load("model/nb_model.pkl")
+
+# Index Appication
 @app.route('/')
 def index():
     return render_template('index.html')
-
-# Load model SVM
-
-model = joblib.load("model/svm_model.pkl")
-model_full = joblib.load("model/nb_model.pkl")
 
 @app.route('/classification', methods=['GET', 'POST'])
 def classification():
@@ -97,5 +99,53 @@ def full_classification():
 
     return render_template('full_classification.html', form_values=form_values, prediction=prediction_label, error=error)
 
+# Bagian Admin
+@app.route('/administrator')
+def administrator():
+    if 'user' not in session:
+        flash("Silakan login terlebih dahulu!", "warning")
+        return redirect(url_for('login'))
+    return render_template('admin/dashboard.html')
+
+@app.route('/dataresponden')
+def dataresponden():
+    if 'user' not in session:
+        flash("Silakan login terlebih dahulu!", "warning")
+        return redirect(url_for('login'))
+    return render_template('admin/dataresponden.html')
+
+
+# Function Login and Logout
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Cek username dan password di database
+        cursor.execute("SELECT * FROM user WHERE username = %s AND password = %s", (username, password))
+        user = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if user:
+            session['user'] = user['username']  # Simpan user di session
+            flash("Login berhasil!", "success")
+            return redirect(url_for('administrator'))
+        else:
+            flash("Username atau password salah!", "danger")
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
+
+# Sys Application
 if __name__ == '__main__':
     app.run(debug=True)
