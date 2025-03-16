@@ -1,0 +1,10 @@
+<ul>
+    <li><a href="{{ url_for('index') }}" class="{% if request.path == url_for('index') %}active{% endif %}">Home</a>
+    </li>
+    <li><a href="{{ url_for('classification') }}"
+            class="{% if request.path == url_for('classification') %}active{% endif %}">Classification</a></li>
+    <li><a href="{{ url_for('full_classification') }}"
+            class="{% if request.path == url_for('full_classification') %}active{% endif %}">Full Classification</a>
+    </li>
+</ul>
+<i class="mobile-nav-toggle d-xl-none bi bi-list"></i>

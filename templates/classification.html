@@ -1,510 +1,425 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'components/layout.html' %}
 
-<head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Deteksi Risiko Kanker Serviks</title>
-  <meta name="description" content="" />
-  <meta name="keywords" content="" />
-
-  <!-- Favicons -->
-  <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
-  <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect">
-  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-    rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-
-  <!-- Main CSS File -->
-  <link href="{{ url_for('static', filename='assets/css/main.css') }}" rel="stylesheet">
-
-  <style>
-    label,
-    select {
-      text-transform: capitalize;
-    }
-  </style>
-</head>
-
-<body class="index-page">
-  <header id="header" class="header d-flex align-items-center sticky-top">
-    <div class="container position-relative d-flex align-items-center justify-content-between">
-      <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-xl-0">
-        <!-- Uncomment the line below if you also wish to use an image logo -->
-        <!-- <img src="assets/img/logo.png" alt=""> -->
-        <h1 class="sitename">CerviCheck</h1>
-      </a>
-
-      <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="{{ url_for('index') }}">Home</a></li>
-          <li><a href="{{ url_for('classification') }}" class="active">Classification</a></li>
-          <li><a href="{{ url_for('full_classification') }}">Full Classification</a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-      </nav>
+{% block formpertanyaan %}
+<form id="predictionForm" action="{{ url_for('classification') }}" method="post">
+  <div class="row gy-4">
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d21" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda
+        menggunakan alat
+        kontrasepsi?</label>
+      <select class="form-control" required id="d21" name="d21">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak</option>
+        <option value="2">Ya</option>
+      </select>
     </div>
-  </header>
 
-  <main class="main">
-    <!-- Contact Section -->
-    <section id="contact" class="contact section light-background">
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Check Risiko Kanker Serviks</h2>
-        <p>
-          Pertanyaan Unggulan
-        </p>
-      </div>
-      <!-- End Section Title -->
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d11" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda
+        memiliki jaminan
+        atau asurasi kesehatan?</label>
+      <select class="form-control" required id="d11" name="d11">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="2">Ya memiliki, BPJS/ASKES/KIS/ Asuransi kesehatan lainnya</option>
+        <option value="3">Tidak memiliki asuransi kesehatan apapun</option>
+      </select>
+    </div>
 
-      <div class="container" data-aos="fade" data-aos-delay="100">
-        <form id="predictionForm" action="{{ url_for('classification') }}" method="post">
-          <div class="row gy-4">
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d21" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda menggunakan alat
-                kontrasepsi?</label>
-              <select class="form-control" required id="d21" name="d21">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak</option>
-                <option value="2">Ya</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b62" class="form-label flex-grow-1 d-flex align-items-center">Berapa Umur Anda
+        Saat
+        Terdiagnosa Penyakit Kanker?</label>
+      <select class="form-control" required id="b62" name="b62">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak pernah sakit kanker/kanker serviks</option>
+        <option value="2">&lt;35 Tahun</option>
+        <option value="3">&gt;35 tahun</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d11" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda memiliki jaminan
-                atau asurasi kesehatan?</label>
-              <select class="form-control" required id="d11" name="d11">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="2">Ya memiliki, BPJS/ASKES/KIS/ Asuransi kesehatan lainnya</option>
-                <option value="3">Tidak memiliki asuransi kesehatan apapun</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b21" class="form-label flex-grow-1 d-flex align-items-center">Status perkawinan
+        suami anda
+        dengan anda saat ini?</label>
+      <select class="form-control" required id="b21" name="b21">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum Menikah / Tidak Menikah</option>
+        <option value="2">Menikah</option>
+        <option value="3">Bercerai</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b62" class="form-label flex-grow-1 d-flex align-items-center">Berapa Umur Anda Saat
-                Terdiagnosa Penyakit Kanker?</label>
-              <select class="form-control" required id="b62" name="b62">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak pernah sakit kanker/kanker serviks</option>
-                <option value="2">&lt;35 Tahun</option>
-                <option value="3">&gt;35 tahun</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b61" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda
+        mempunyai riwayat
+        sakit kanker?</label>
+      <select class="form-control" required id="b61" name="b61">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak pernah sakit kanker/kanker serviks</option>
+        <option value="2">Pernah Sakit Kanker</option>
+        <option value="3">Sedang sakit kanker/kanker serviks</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b21" class="form-label flex-grow-1 d-flex align-items-center">Status perkawinan suami anda
-                dengan anda saat ini?</label>
-              <select class="form-control" required id="b21" name="b21">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum Menikah / Tidak Menikah</option>
-                <option value="2">Menikah</option>
-                <option value="3">Bercerai</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b12" class="form-label flex-grow-1 d-flex align-items-center">Selama Ini Anda
+        Telah Menikah
+        Berapa Kali?</label>
+      <select class="form-control" required id="b12" name="b12">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum Menikah / Tidak Menikah</option>
+        <option value="2">Menikah 1x</option>
+        <option value="3">Menikah &gt;2x</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b61" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda mempunyai riwayat
-                sakit kanker?</label>
-              <select class="form-control" required id="b61" name="b61">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak pernah sakit kanker/kanker serviks</option>
-                <option value="2">Pernah Sakit Kanker</option>
-                <option value="3">Sedang sakit kanker/kanker serviks</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d92" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda pernah
+        mengalami
+        keputihan yang berwarna kuning/kehijauan, gatal dan berbau pada vagina?</label>
+      <select class="form-control" required id="d92" name="d92">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak, Tidak Pernah</option>
+        <option value="2">Ya, dalam enam bulan terakhir (enam bulan sebelum terdiagnosa)
+        </option>
+        <option value="2">Ya, dalam satu tahun terakhir (satu tahun sebelum terdiagnosa)
+        </option>
+        <option value="2">Ya, lebih dari satu tahun yang lalu ( lebih dari satu tahun sebelum
+          terdiagnosa)
+        </option>
+        <option value="2">Tidak ingin menjawab</option>
+        <option value="3">Ya, dalam satu bulan terakhir (satu bulan sebelum terdiagnosa)
+        </option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b12" class="form-label flex-grow-1 d-flex align-items-center">Selama Ini Anda Telah Menikah
-                Berapa Kali?</label>
-              <select class="form-control" required id="b12" name="b12">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum Menikah / Tidak Menikah</option>
-                <option value="2">Menikah 1x</option>
-                <option value="3">Menikah &gt;2x</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d26" class="form-label flex-grow-1 d-flex align-items-center">Berapa kali Anda
+        ganti
+        cara/ganti alat kontrasepsi selama ini?</label>
+      <select class="form-control" required id="d26" name="d26">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">&gt;3x</option>
+        <option value="2">1x</option>
+        <option value="2">2x</option>
+        <option value="2">Tidak menggunakan alat kontrasepsi</option>
+        <option value="3">Tidak Ganti Cara</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d92" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda pernah mengalami
-                keputihan yang berwarna kuning/kehijauan, gatal dan berbau pada vagina?</label>
-              <select class="form-control" required id="d92" name="d92">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak, Tidak Pernah</option>
-                <option value="2">Ya, dalam enam bulan terakhir (enam bulan sebelum terdiagnosa)</option>
-                <option value="2">Ya, dalam satu tahun terakhir (satu tahun sebelum terdiagnosa)</option>
-                <option value="2">Ya, lebih dari satu tahun yang lalu ( lebih dari satu tahun sebelum terdiagnosa)
-                </option>
-                <option value="2">Tidak ingin menjawab</option>
-                <option value="3">Ya, dalam satu bulan terakhir (satu bulan sebelum terdiagnosa)</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b14" class="form-label flex-grow-1 d-flex align-items-center">Selama Ini Dalam
+        Pernikahan,
+        Apakah Anda Pernah Mempunyai
+        Pasangan Seksual/Suami >1 Dalam Waktu Yang Bersamaan?</label>
+      <select class="form-control" required id="b14" name="b14">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum menikah/tidak menikah/tidak punya pasangan seksual</option>
+        <option value="2">Tidak</option>
+        <option value="3">Ya</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d26" class="form-label flex-grow-1 d-flex align-items-center">Berapa kali Anda ganti
-                cara/ganti alat kontrasepsi selama ini?</label>
-              <select class="form-control" required id="d26" name="d26">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">&gt;3x</option>
-                <option value="2">1x</option>
-                <option value="2">2x</option>
-                <option value="2">Tidak menggunakan alat kontrasepsi</option>
-                <option value="3">Tidak Ganti Cara</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d23" class="form-label flex-grow-1 d-flex align-items-center">Anda menggunakan
+        alat
+        kontrasepsi tersebut sampai berapa?</label>
+      <select class="form-control" required id="d23" name="d23">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">&lt;1 Tahun</option>
+        <option value="1">1 - 3 tahun</option>
+        <option value="2">&gt;3 - 5 tahun</option>
+        <option value="2">&gt;5 - 10 tahun</option>
+        <option value="2">Tidak menggunakan alat kontrasepsi</option>
+        <option value="3">&gt;10 Tahun</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b14" class="form-label flex-grow-1 d-flex align-items-center">Selama Ini Dalam Pernikahan,
-                Apakah Anda Pernah Mempunyai
-                Pasangan Seksual/Suami >1 Dalam Waktu Yang Bersamaan?</label>
-              <select class="form-control" required id="b14" name="b14">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum menikah/tidak menikah/tidak punya pasangan seksual</option>
-                <option value="2">Tidak</option>
-                <option value="3">Ya</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b24" class="form-label flex-grow-1 d-flex align-items-center">Sepengetahuan anda
+        selama dalam
+        pernikahan apakah suami anda pernah mempunyai pasangan seksual/istri >1 dalam waktu yang
+        bersamaan?</label>
+      <select class="form-control" required id="b24" name="b24">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum menikah/tidak menikah</option>
+        <option value="2">Tidak</option>
+        <option value="3">Ya</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d23" class="form-label flex-grow-1 d-flex align-items-center">Anda menggunakan alat
-                kontrasepsi tersebut sampai berapa?</label>
-              <select class="form-control" required id="d23" name="d23">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">&lt;1 Tahun</option>
-                <option value="1">1 - 3 tahun</option>
-                <option value="2">&gt;3 - 5 tahun</option>
-                <option value="2">&gt;5 - 10 tahun</option>
-                <option value="2">Tidak menggunakan alat kontrasepsi</option>
-                <option value="3">&gt;10 Tahun</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d117" class="form-label flex-grow-1 d-flex align-items-center">Apakah
+        pasangan/suami dan orang
+        yang tinggal serumah merokok disekitar anda</label>
+      <select class="form-control" required id="d117" name="d117">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak, baik pasangan/suami maupun orang yang tinggal serumah tidak
+          merokok di sekitar
+          saya</option>
+        <option value="2">Tidak Yakin</option>
+        <option value="3">Hanya orang yang tinggal serumah yang merokok di sekitar saya</option>
+        <option value="3">Hanya pasangan/suami yang merokok di sekitar saya</option>
+        <option value="3">Ya, pasangan/suami dan orang yang tinggal serumah merokok di sekitar
+          saya</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b24" class="form-label flex-grow-1 d-flex align-items-center">Sepengetahuan anda selama dalam
-                pernikahan apakah suami anda pernah mempunyai pasangan seksual/istri >1 dalam waktu yang
-                bersamaan?</label>
-              <select class="form-control" required id="b24" name="b24">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum menikah/tidak menikah</option>
-                <option value="2">Tidak</option>
-                <option value="3">Ya</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b52" class="form-label flex-grow-1 d-flex align-items-center">Anda selama ini
+        pernah hamil
+        berapa kali?</label>
+      <select class="form-control" required id="b52" name="b52">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum pernah hamil </option>
+        <option value="2">1 Kali</option>
+        <option value="2">2 Kali</option>
+        <option value="3">3 Kali</option>
+        <option value="3">4 Kali</option>
+        <option value="3">5 Kali</option>
+        <option value="3">&gt;5 Kali</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d117" class="form-label flex-grow-1 d-flex align-items-center">Apakah pasangan/suami dan orang
-                yang tinggal serumah merokok disekitar anda</label>
-              <select class="form-control" required id="d117" name="d117">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak, baik pasangan/suami maupun orang yang tinggal serumah tidak merokok di sekitar
-                  saya</option>
-                <option value="2">Tidak Yakin</option>
-                <option value="3">Hanya orang yang tinggal serumah yang merokok di sekitar saya</option>
-                <option value="3">Hanya pasangan/suami yang merokok di sekitar saya</option>
-                <option value="3">Ya, pasangan/suami dan orang yang tinggal serumah merokok di sekitar saya</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b15" class="form-label flex-grow-1 d-flex align-items-center text-capitalize">Berapa jumlah
+        pasangan seksual atau suami yang dimiliki secara bersamaan oleh anda?</label>
+      <select class="form-control" required id="b15" name="b15">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">0/Belum menikah/tidak menikah/tidak punya pasangan seksual</option>
+        <option value="2">1</option>
+        <option value="3">&gt;1</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b52" class="form-label flex-grow-1 d-flex align-items-center">Anda selama ini pernah hamil
-                berapa kali?</label>
-              <select class="form-control" required id="b52" name="b52">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum pernah hamil </option>
-                <option value="2">1 Kali</option>
-                <option value="2">2 Kali</option>
-                <option value="3">3 Kali</option>
-                <option value="3">4 Kali</option>
-                <option value="3">5 Kali</option>
-                <option value="3">&gt;5 Kali</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d118" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda
+        terkena/menghirup
+        asap rokok dirumah maupun diluar rumah?</label>
+      <select class="form-control" required id="d118" name="d118">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak, saya tidak menghirup asap rokok di rumah atau di luar rumah
+        </option>
+        <option value="2">Tidak yakin</option>
+        <option value="3">Ya, saya menghirup asap rokok hanya di luar rumah</option>
+        <option value="3">Ya, saya menghirup asap rokok hanya di rumah</option>
+        <option value="3">Ya, saya menghirup asap rokok di rumah dan di luar rumah</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b15" class="form-label flex-grow-1 d-flex align-items-center text-capitalize">Berapa jumlah
-                pasangan seksual atau suami yang dimiliki secara bersamaan oleh anda?</label>
-              <select class="form-control" required id="b15" name="b15">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">0/Belum menikah/tidak menikah/tidak punya pasangan seksual</option>
-                <option value="2">1</option>
-                <option value="3">&gt;1</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b11" class="form-label flex-grow-1 d-flex align-items-center">Apakah Status
+        Perkawinan
+        Anda Saat Ini?</label>
+      <select class="form-control" required id="b11" name="b11">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum Menikah/Tidak Menikah</option>
+        <option value="2">Menikah</option>
+        <option value="3">Bercerai</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d118" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda terkena/menghirup
-                asap rokok dirumah maupun diluar rumah?</label>
-              <select class="form-control" required id="d118" name="d118">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak, saya tidak menghirup asap rokok di rumah atau di luar rumah </option>
-                <option value="2">Tidak yakin</option>
-                <option value="3">Ya, saya menghirup asap rokok hanya di luar rumah</option>
-                <option value="3">Ya, saya menghirup asap rokok hanya di rumah</option>
-                <option value="3">Ya, saya menghirup asap rokok di rumah dan di luar rumah</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b25" class="form-label flex-grow-1 d-flex align-items-center">Sepengetahuan Anda
+        Berapa jumlah
+        pasangan seksual/istri yang dimiliki oleh suami Anda secara bersamaan?</label>
+      <select class="form-control" required id="b25" name="b25">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">0/Belum menikah/tidak menikah/tidak punya pasangan seksual</option>
+        <option value="2">1</option>
+        <option value="3">&gt;1</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b11" class="form-label flex-grow-1 d-flex align-items-center">Apakah Status Perkawinan
-                Anda Saat Ini?</label>
-              <select class="form-control" required id="b11" name="b11">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum Menikah/Tidak Menikah</option>
-                <option value="2">Menikah</option>
-                <option value="3">Bercerai</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d91" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda pernah
+        mengalami
+        gatal-gatal pada vagina?</label>
+      <select class="form-control" required id="d91" name="d91">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak, tidak pernah</option>
+        <option value="2">Ya, lebih dari satu tahun yang lalu (lebih dari satu tahun sebelum
+          terdiagnosa)
+        </option>
+        <option value="2">Ya, dalam satu tahun terakhir (satu tahun sebelum terdiagnosa)
+        </option>
+        <option value="2">Ya, dalam enam bulan terakhir (enam bulan sebelum terdiagnosa)
+        </option>
+        <option value="2">Tidak ingin menjawab</option>
+        <option value="3">Ya, dalam satu bulan terakhir (satu bulan sebelum terdiagnosa)
+        </option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b25" class="form-label flex-grow-1 d-flex align-items-center">Sepengetahuan Anda Berapa jumlah
-                pasangan seksual/istri yang dimiliki oleh suami Anda secara bersamaan?</label>
-              <select class="form-control" required id="b25" name="b25">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">0/Belum menikah/tidak menikah/tidak punya pasangan seksual</option>
-                <option value="2">1</option>
-                <option value="3">&gt;1</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b23" class="form-label flex-grow-1 d-flex align-items-center">Selama ini
+        sepengetahuan anda,
+        apakah suami anda pernah Menjadi Duda</label>
+      <select class="form-control" required id="b23" name="b23">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum Menikah / Tidak Menikah</option>
+        <option value="2">Tidak</option>
+        <option value="3">Ya</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d91" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda pernah mengalami
-                gatal-gatal pada vagina?</label>
-              <select class="form-control" required id="d91" name="d91">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak, tidak pernah</option>
-                <option value="2">Ya, lebih dari satu tahun yang lalu (lebih dari satu tahun sebelum terdiagnosa)
-                </option>
-                <option value="2">Ya, dalam satu tahun terakhir (satu tahun sebelum terdiagnosa)</option>
-                <option value="2">Ya, dalam enam bulan terakhir (enam bulan sebelum terdiagnosa)</option>
-                <option value="2">Tidak ingin menjawab</option>
-                <option value="3">Ya, dalam satu bulan terakhir (satu bulan sebelum terdiagnosa)</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b44" class="form-label flex-grow-1 d-flex align-items-center">Berapakah jam
+        kerja suami anda
+        dalam sehari?</label>
+      <select class="form-control" required id="b44" name="b44">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak Bekerja/dirumah saja</option>
+        <option value="2">1 - 8 Jam</option>
+        <option value="3">&gt;8 Jam</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b23" class="form-label flex-grow-1 d-flex align-items-center">Selama ini sepengetahuan anda,
-                apakah suami anda pernah Menjadi Duda</label>
-              <select class="form-control" required id="b23" name="b23">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum Menikah / Tidak Menikah</option>
-                <option value="2">Tidak</option>
-                <option value="3">Ya</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b42" class="form-label flex-grow-1 d-flex align-items-center">Sudah berapa
+        lama/pernah berapa
+        lama suami anda Bekerja?</label>
+      <select class="form-control" required id="b42" name="b42">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak Bekerja</option>
+        <option value="2">1 - 10 Tahun</option>
+        <option value="3">&gt;10 Tahun</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b44" class="form-label flex-grow-1 d-flex align-items-center">Berapakah jam kerja suami anda
-                dalam sehari?</label>
-              <select class="form-control" required id="b44" name="b44">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak Bekerja/dirumah saja</option>
-                <option value="2">1 - 8 Jam</option>
-                <option value="3">&gt;8 Jam</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b22" class="form-label flex-grow-1 d-flex align-items-center">Selama ini
+        sepengetahuan anda
+        suami anda telah menikah berapa kali</label>
+      <select class="form-control" required id="b22" name="b22">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum Menikah / Tidak Menikah</option>
+        <option value="2">Menikah 1x</option>
+        <option value="3">Menikah &gt;2x</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b42" class="form-label flex-grow-1 d-flex align-items-center">Sudah berapa lama/pernah berapa
-                lama suami anda Bekerja?</label>
-              <select class="form-control" required id="b42" name="b42">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak Bekerja</option>
-                <option value="2">1 - 10 Tahun</option>
-                <option value="3">&gt;10 Tahun</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d116" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda
+        Sering menghirup
+        asap rokok dalam kegiatan sehari-hari?</label>
+      <select class="form-control" required id="d116" name="d116">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak pernah (Tidak pernah menghirup asap rokok dalam kegiatan
+          sehari-hari)</option>
+        <option value="2">Tidak yakin (Tidak bisa memastikan frekuensi atau belum memperhatikan
+          seberapa sering
+          menghirup asap rokok)</option>
+        <option value="2">Jarang (Menghirup asap rokok hanya sekali-sekali dalam sebulan atau
+          lebih jarang dari
+          itu, tidak secara teratur)</option>
+        <option value="3">Tidak (Menghirup asap rokok beberapa kali dalam seminggu atau kurang
+          dari satu kali
+          sehari, tetapi tidak secara konsisten)</option>
+        <option value="3">Ya, sering (Menghirup asap rokok hampir setiap hari atau beberapa kali
+          dalam sehari
+          dalam kegiatan rutin)</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b22" class="form-label flex-grow-1 d-flex align-items-center">Selama ini sepengetahuan anda
-                suami anda telah menikah berapa kali</label>
-              <select class="form-control" required id="b22" name="b22">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum Menikah / Tidak Menikah</option>
-                <option value="2">Menikah 1x</option>
-                <option value="3">Menikah &gt;2x</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d51" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda
+        mengonsumsi makanan
+        cepat saji (Burger, Ayam Goreng, Pizza, Hot Dog, Nasi Goreng, Mie Instan, Kebab, Camilan
+        Kemasan, Roti
+        Bakar, Sosis)?</label>
+      <select class="form-control" required id="d51" name="d51">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak, hampir tidak pernah</option>
+        <option value="1">Tidak, sama sekali tidak mengonsumsi makanan cepat saji</option>
+        <option value="2">Ya, kadang-kadang (sekali sebulan atau kurang)</option>
+        <option value="3">Ya, secara rutin (beberapa kali seminggu)</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d116" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda Sering menghirup
-                asap rokok dalam kegiatan sehari-hari?</label>
-              <select class="form-control" required id="d116" name="d116">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak pernah (Tidak pernah menghirup asap rokok dalam kegiatan sehari-hari)</option>
-                <option value="2">Tidak yakin (Tidak bisa memastikan frekuensi atau belum memperhatikan seberapa sering
-                  menghirup asap rokok)</option>
-                <option value="2">Jarang (Menghirup asap rokok hanya sekali-sekali dalam sebulan atau lebih jarang dari
-                  itu, tidak secara teratur)</option>
-                <option value="3">Tidak (Menghirup asap rokok beberapa kali dalam seminggu atau kurang dari satu kali
-                  sehari, tetapi tidak secara konsisten)</option>
-                <option value="3">Ya, sering (Menghirup asap rokok hampir setiap hari atau beberapa kali dalam sehari
-                  dalam kegiatan rutin)</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b43" class="form-label flex-grow-1 d-flex align-items-center">Apakah jenis
+        pekerjaan suami
+        anda?</label>
+      <select class="form-control" required id="b43" name="b43">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak Bekerja/dirumah saja</option>
+        <option value="2">Diluar pilihan diatas</option>
+        <option value="3">Bekerja di Pabrik rokok, pabrik kulit, pabrik cat, dray clean, buruh
+          tani, tani, buruh
+          kebun, pekebun, sopir, pelaut</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d51" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda mengonsumsi makanan
-                cepat saji (Burger, Ayam Goreng, Pizza, Hot Dog, Nasi Goreng, Mie Instan, Kebab, Camilan Kemasan, Roti
-                Bakar, Sosis)?</label>
-              <select class="form-control" required id="d51" name="d51">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak, hampir tidak pernah</option>
-                <option value="1">Tidak, sama sekali tidak mengonsumsi makanan cepat saji</option>
-                <option value="2">Ya, kadang-kadang (sekali sebulan atau kurang)</option>
-                <option value="3">Ya, secara rutin (beberapa kali seminggu)</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d52" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda
+        mengonsumsi makanan
+        yang mengandung pewarna, pengawet dan penyedap?</label>
+      <select class="form-control" required id="d52" name="d52">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Tidak, hampir tidak pernah</option>
+        <option value="1">Tidak, sama sekali tidak mengonsumsi makanan cepat saji</option>
+        <option value="2">Ya, kadang-kadang (sekali sebulan atau kurang)</option>
+        <option value="3">Ya, secara rutin (beberapa kali seminggu)</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b43" class="form-label flex-grow-1 d-flex align-items-center">Apakah jenis pekerjaan suami
-                anda?</label>
-              <select class="form-control" required id="b43" name="b43">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak Bekerja/dirumah saja</option>
-                <option value="2">Diluar pilihan diatas</option>
-                <option value="3">Bekerja di Pabrik rokok, pabrik kulit, pabrik cat, dray clean, buruh tani, tani, buruh
-                  kebun, pekebun, sopir, pelaut</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d22" class="form-label flex-grow-1 d-flex align-items-center">Alat Kontrasepsi
+        Apa Yang
+        Anda Gunakan?</label>
+      <select class="form-control" required id="d22" name="d22">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Kondom</option>
+        <option value="2">IUD</option>
+        <option value="2">Implant</option>
+        <option value="2">MOW/MOP</option>
+        <option value="2">Tidak menggunakan alat kontrasepsi</option>
+        <option value="3">Pil KB</option>
+        <option value="3">Suntik KB 1 Bulanan</option>
+        <option value="3">Suntik KB 3 Bulanan</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d52" class="form-label flex-grow-1 d-flex align-items-center">Apakah anda mengonsumsi makanan
-                yang mengandung pewarna, pengawet dan penyedap?</label>
-              <select class="form-control" required id="d52" name="d52">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Tidak, hampir tidak pernah</option>
-                <option value="1">Tidak, sama sekali tidak mengonsumsi makanan cepat saji</option>
-                <option value="2">Ya, kadang-kadang (sekali sebulan atau kurang)</option>
-                <option value="3">Ya, secara rutin (beberapa kali seminggu)</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="d25" class="form-label flex-grow-1 d-flex align-items-center">Anda pernah ganti
+        cara/ganti
+        alat kontrasepsi jenis apa?</label>
+      <select class="form-control" required id="d25" name="d25">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Kondom</option>
+        <option value="2">Pil KB</option>
+        <option value="2">Suntik 1 </option>
+        <option value="2">Suntik 3 bulanan</option>
+        <option value="2">IUD</option>
+        <option value="2">Implant</option>
+        <option value="2">Tidak menggunakan alat kontrasepsi</option>
+        <option value="3">MOW/MOP</option>
+        <option value="3">Tidak Ganti Cara</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d22" class="form-label flex-grow-1 d-flex align-items-center">Alat Kontrasepsi Apa Yang
-                Anda Gunakan?</label>
-              <select class="form-control" required id="d22" name="d22">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Kondom</option>
-                <option value="2">IUD</option>
-                <option value="2">Implant</option>
-                <option value="2">MOW/MOP</option>
-                <option value="2">Tidak menggunakan alat kontrasepsi</option>
-                <option value="3">Pil KB</option>
-                <option value="3">Suntik KB 1 Bulanan</option>
-                <option value="3">Suntik KB 3 Bulanan</option>
-              </select>
-            </div>
+    <div class="mb-3 d-flex flex-column h-100">
+      <label for="b53" class="form-label flex-grow-1 d-flex align-items-center">Anda Selama Ini
+        Pernah
+        Melahirkan Berapa Kali?</label>
+      <select class="form-control" required id="b53" name="b53">
+        <option value="">--Pilih Jawaban--</option>
+        <option value="1">Belum pernah melahirkan</option>
+        <option value="2">1 Kali</option>
+        <option value="2">2 Kali</option>
+        <option value="3">3 Kali</option>
+        <option value="3">4 Kali</option>
+        <option value="3">5 Kali</option>
+        <option value="3">lebih dari 5 kali</option>
+      </select>
+    </div>
 
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="d25" class="form-label flex-grow-1 d-flex align-items-center">Anda pernah ganti cara/ganti
-                alat kontrasepsi jenis apa?</label>
-              <select class="form-control" required id="d25" name="d25">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Kondom</option>
-                <option value="2">Pil KB</option>
-                <option value="2">Suntik 1 </option>
-                <option value="2">Suntik 3 bulanan</option>
-                <option value="2">IUD</option>
-                <option value="2">Implant</option>
-                <option value="2">Tidak menggunakan alat kontrasepsi</option>
-                <option value="3">MOW/MOP</option>
-                <option value="3">Tidak Ganti Cara</option>
-              </select>
-            </div>
-
-            <div class="mb-3 d-flex flex-column h-100">
-              <label for="b53" class="form-label flex-grow-1 d-flex align-items-center">Anda Selama Ini Pernah
-                Melahirkan Berapa Kali?</label>
-              <select class="form-control" required id="b53" name="b53">
-                <option value="">--Pilih Jawaban--</option>
-                <option value="1">Belum pernah melahirkan</option>
-                <option value="2">1 Kali</option>
-                <option value="2">2 Kali</option>
-                <option value="3">3 Kali</option>
-                <option value="3">4 Kali</option>
-                <option value="3">5 Kali</option>
-                <option value="3">lebih dari 5 kali</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <button class="btn btn-primary w-100" id="submitButton" type="submit">
-                Prediksi
-              </button>
-            </div>
-          </div>
-        </form>
-
-        <!-- Modal -->
-        <!-- Modal -->
-        <div class="modal fade" id="prediksiModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="modalLabel">Hasil Prediksi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                {% if error %}
-                <h3 class="text-danger">{{ error }}</h3>
-                {% elif form_values %}
-                <h3>Prediksi Risiko: <span class="text-danger">{{ prediction }}</span></h3>
-                {% else %}
-                <p>Tidak ada input yang diterima.</p>
-                {% endif %}
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- /Contact Section -->
-  </main>
-
-  <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
-      class="bi bi-arrow-up-short"></i></a>
-
-  <!-- Preloader -->
-  <div id="preloader"></div>
-
-  <!-- Vendor JS Files -->
-  <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
-
-  <!-- Main JS File -->
-  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      {% if error or prediction %}
-      var modal = new bootstrap.Modal(document.getElementById("prediksiModal"));
-      modal.show();
-      {% endif %}
-    });
-  </script>
-
-
-
-</body>
-
-</html>
+    <div class="mb-3">
+      <button class="btn btn-primary w-100" id="submitButton" type="submit">
+        Prediksi
+      </button>
+    </div>
+  </div>
+</form>
+{% endblock %}
