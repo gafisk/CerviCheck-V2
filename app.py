@@ -10,7 +10,7 @@ app.secret_key = 'rahasia123'
 model = joblib.load("model/svm_model.pkl")
 model_full = joblib.load("model/nb_model.pkl")
 
-# Index Appication
+# Index Application
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -146,6 +146,5 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
-# Sys Application
 if __name__ == '__main__':
     app.run(debug=True)
