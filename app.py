@@ -7,7 +7,7 @@ import pandas
 
 
 app = Flask(__name__)
-app.secret_key = 'rahasia123' 
+app.secret_key = 'CerviCheck_Indah_rhs2025-GafDev' 
 
 # Load model
 model = joblib.load("model/svm_model.pkl")
