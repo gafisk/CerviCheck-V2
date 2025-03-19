@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from connections.conn import get_db_connection 
 import joblib
 import numpy as np
+import datetime
+
 
 app = Flask(__name__)
 app.secret_key = 'rahasia123' 
@@ -17,35 +19,71 @@ def index():
 
 @app.route('/classification', methods=['GET', 'POST'])
 def classification():
+    input_initial = ['inisial', 'umur', 'alamat', 'pekerjaan', 'pendidikan']
     input_names = ['d21', 'd11', 'b62', 'b21', 'b61', 'b12', 'd92', 'd26',
         'b14', 'd23', 'b24', 'd117', 'b52', 'b15', 'd118', 'b11',
         'd25', 'd91', 'b23', 'b44', 'b42', 'b22', 'd116', 'd51',
         'b43', 'd52', 'd22', 'b25', 'b53'
     ]
-
-    form_values = {}
+    
+    form_values_classification = {}
     prediction_label = None
     error = None
 
     if request.method == 'POST':
-        # Ambil nilai dari form
-        form_values = {name: request.form.get(name, '').strip() for name in input_names}
+        try:
+            conn = get_db_connection()  # Ambil koneksi DB
+            cursor = conn.cursor()
 
-        # Cek apakah ada input kosong
-        if any(value == '' for value in form_values.values()):
-            error = "Semua Form Isian Harus Diisi"
-        else:
-            # Konversi nilai ke float
-            input_data = np.array([float(value) for value in form_values.values()]).reshape(1, -1)
+            # Ambil data dari form
+            form_values_initial = {name: request.form.get(name, '').strip() for name in input_initial}
+            form_values_classification = {name: request.form.get(name, '').strip() for name in input_names}
 
-            # Prediksi dengan model SVM
-            prediction = model.predict(input_data)[0]
+            # Cek apakah ada input kosong
+            if any(value == '' for value in form_values_initial.values()) or \
+               any(value == '' for value in form_values_classification.values()):
+                error = "Semua Form Isian Harus Diisi"
+            else:
+                # Konversi nilai ke float untuk prediksi
+                input_data = np.array([float(value) for value in form_values_classification.values()]).reshape(1, -1)
+                prediction = model.predict(input_data)[0]
 
-            # Mapping hasil prediksi ke label risiko
-            risk_mapping = {1: 'Risiko Rendah', 2: 'Risiko Sedang', 3: 'Risiko Tinggi'}
-            prediction_label = risk_mapping.get(prediction, "Tidak Diketahui")
+                # Mapping hasil prediksi ke label risiko
+                risk_mapping = {1: 'Risiko Rendah', 2: 'Risiko Sedang', 3: 'Risiko Tinggi'}
+                prediction_label = risk_mapping.get(prediction, "Tidak Diketahui")
 
-    return render_template('classification.html', form_values=form_values, prediction=prediction_label, error=error)
+                # Simpan data ke `data_responden` dengan `status` hasil prediksi
+                insert_responden_query = """
+                    INSERT INTO data_responden (nama, umur, alamat, pekerjaan, pendidikan, waktu, status)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s);
+                """
+                waktu_sekarang = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                cursor.execute(insert_responden_query, (*form_values_initial.values(), waktu_sekarang, prediction_label))
+
+                # Ambil `id_responden` yang baru dimasukkan
+                cursor.execute("SELECT LAST_INSERT_ID();")
+                new_responden_id = cursor.fetchone()[0]
+                conn.commit()
+
+                # Simpan data ke `classification`
+                insert_classification_query = f"""
+                    INSERT INTO classification (id_responden, {', '.join(input_names)})
+                    VALUES ({', '.join(['%s'] * (len(input_names) + 1))});
+                """
+                cursor.execute(insert_classification_query, (new_responden_id, *form_values_classification.values()))
+                conn.commit()
+
+            cursor.close()
+            conn.close()
+            print(insert_responden_query)
+            print("")
+            print(insert_classification_query)
+
+        except Exception as e:
+            conn.rollback()  # Rollback jika ada error
+            error = f"Terjadi kesalahan: {str(e)}"
+
+    return render_template('classification.html', form_values=form_values_classification, prediction=prediction_label, error=error)
 
 @app.route('/full_classification', methods=['GET', 'POST'])
 def full_classification():
@@ -112,7 +150,35 @@ def dataresponden():
     if 'user' not in session:
         flash("Silakan login terlebih dahulu!", "warning")
         return redirect(url_for('login'))
-    return render_template('admin/dataresponden.html')
+    conn = get_db_connection()  # Ambil koneksi baru
+    cursor = conn.cursor(dictionary=True)  # Menggunakan dictionary agar lebih mudah
+    cursor.execute("SELECT * FROM data_responden")
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('admin/dataresponden.html', data=data)
+
+@app.route('/hapus_responden/<int:id_responden>')
+def hapus_responden(id_responden):
+    if 'user' not in session:
+        flash("Silakan login terlebih dahulu!", "warning")
+        return redirect(url_for('login'))
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM data_responden WHERE id_responden = %s", (id_responden,))
+        conn.commit()
+        flash("Responden berhasil dihapus!", "success")
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"Terjadi kesalahan: {str(e)}", "danger")
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('dataresponden'))
+
 
 
 # Function Login and Logout

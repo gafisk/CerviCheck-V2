@@ -27,34 +27,31 @@ Data Responden
                 </thead>
                 <tfoot>
                     <tr>
-                        <th>Name</th>
-                        <th>Position</th>
-                        <th>Office</th>
-                        <th>Age</th>
-                        <th>Start date</th>
-                        <th>Salary</th>
-                        <th>Salary</th>
+                        <th>Inisial</th>
+                        <th>Umur</th>
+                        <th>Alamat</th>
+                        <th>Pekerjaan</th>
+                        <th>Pendidikan</th>
+                        <th>Waktu</th>
+                        <th>Aksi</th>
                     </tr>
                 </tfoot>
                 <tbody>
+                    {% for row in data %}
                     <tr>
-                        <td>Tiger Nixon</td>
-                        <td>System Architect</td>
-                        <td>Edinburgh</td>
-                        <td>61</td>
-                        <td>2011/04/25</td>
-                        <td>$320,800</td>
-                        <td>$320,800</td>
+                        <td>{{ row['nama'] }}</td>
+                        <td>{{ row['umur'] }}</td>
+                        <td>{{ row['alamat'] }}</td>
+                        <td>{{ row['pekerjaan'] }}</td>
+                        <td>{{ row['pendidikan'] }}</td>
+                        <td>{{ row['waktu'] }}</td>
+                        <td>
+                            <a href="{{ url_for('hapus_responden', id_responden=row['id_responden']) }}"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</a>
+                        </td>
                     </tr>
-                    <tr>
-                        <td>Garrett Winters</td>
-                        <td>Accountant</td>
-                        <td>Tokyo</td>
-                        <td>63</td>
-                        <td>2011/07/25</td>
-                        <td>$170,750</td>
-                        <td>$170,750</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
