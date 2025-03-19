@@ -22,6 +22,7 @@ Data Responden
                         <th>Pekerjaan</th>
                         <th>Pendidikan</th>
                         <th>Waktu</th>
+                        <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -33,6 +34,7 @@ Data Responden
                         <th>Pekerjaan</th>
                         <th>Pendidikan</th>
                         <th>Waktu</th>
+                        <th>Status</th>
                         <th>Aksi</th>
                     </tr>
                 </tfoot>
@@ -45,6 +47,7 @@ Data Responden
                         <td>{{ row['pekerjaan'] }}</td>
                         <td>{{ row['pendidikan'] }}</td>
                         <td>{{ row['waktu'] }}</td>
+                        <td>{{ row['status'] }}</td>
                         <td>
                             <a href="{{ url_for('hapus_responden', id_responden=row['id_responden']) }}"
                                 class="btn btn-danger btn-sm"

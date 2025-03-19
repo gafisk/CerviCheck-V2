@@ -4,3 +4,5 @@ numpy
 scikit-learn
 mysql-connector-python
 datetime
+pandas
+openpyxl

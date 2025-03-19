@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
 from connections.conn import get_db_connection 
 import joblib
 import numpy as np
 import datetime
+import pandas
 
 
 app = Flask(__name__)
@@ -21,30 +22,38 @@ def index():
 def classification():
     input_initial = ['inisial', 'umur', 'alamat', 'pekerjaan', 'pendidikan']
     input_names = ['d21', 'd11', 'b62', 'b21', 'b61', 'b12', 'd92', 'd26',
-        'b14', 'd23', 'b24', 'd117', 'b52', 'b15', 'd118', 'b11',
-        'd25', 'd91', 'b23', 'b44', 'b42', 'b22', 'd116', 'd51',
-        'b43', 'd52', 'd22', 'b25', 'b53'
-    ]
+                    'b14', 'd23', 'b24', 'd117', 'b52', 'b15', 'd118', 'b11',
+                    'd25', 'd91', 'b23', 'b44', 'b42', 'b22', 'd116', 'd51',
+                    'b43', 'd52', 'd22', 'b25', 'b53']
     
+    # Pemisahan kolom berdasarkan tabel
+    columns_d = ['d21', 'd11', 'd92', 'd26', 'd23', 
+                 'd117', 'd118', 'd25', 'd91', 'd116', 
+                 'd51', 'd52', 'd22']
+    columns_b = ['b62', 'b21', 'b61', 'b12', 'b14', 'b24', 
+                 'b52', 'b15', 'b11', 'b23', 'b44', 'b42', 
+                 'b22', 'b43', 'b25', 'b53']
+    columns_c = []
+
     form_values_classification = {}
     prediction_label = None
     error = None
 
     if request.method == 'POST':
         try:
-            conn = get_db_connection()  # Ambil koneksi DB
+            conn = get_db_connection()
             cursor = conn.cursor()
 
             # Ambil data dari form
             form_values_initial = {name: request.form.get(name, '').strip() for name in input_initial}
             form_values_classification = {name: request.form.get(name, '').strip() for name in input_names}
 
-            # Cek apakah ada input kosong
+            # Validasi input kosong
             if any(value == '' for value in form_values_initial.values()) or \
                any(value == '' for value in form_values_classification.values()):
                 error = "Semua Form Isian Harus Diisi"
             else:
-                # Konversi nilai ke float untuk prediksi
+                # Konversi data untuk prediksi
                 input_data = np.array([float(value) for value in form_values_classification.values()]).reshape(1, -1)
                 prediction = model.predict(input_data)[0]
 
@@ -52,7 +61,7 @@ def classification():
                 risk_mapping = {1: 'Risiko Rendah', 2: 'Risiko Sedang', 3: 'Risiko Tinggi'}
                 prediction_label = risk_mapping.get(prediction, "Tidak Diketahui")
 
-                # Simpan data ke `data_responden` dengan `status` hasil prediksi
+                # Simpan ke data_responden
                 insert_responden_query = """
                     INSERT INTO data_responden (nama, umur, alamat, pekerjaan, pendidikan, waktu, status)
                     VALUES (%s, %s, %s, %s, %s, %s, %s);
@@ -60,33 +69,46 @@ def classification():
                 waktu_sekarang = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 cursor.execute(insert_responden_query, (*form_values_initial.values(), waktu_sekarang, prediction_label))
 
-                # Ambil `id_responden` yang baru dimasukkan
+                # Ambil id_responden yang baru
                 cursor.execute("SELECT LAST_INSERT_ID();")
                 new_responden_id = cursor.fetchone()[0]
                 conn.commit()
 
-                # Simpan data ke `classification`
-                insert_classification_query = f"""
-                    INSERT INTO classification (id_responden, {', '.join(input_names)})
-                    VALUES ({', '.join(['%s'] * (len(input_names) + 1))});
-                """
-                cursor.execute(insert_classification_query, (new_responden_id, *form_values_classification.values()))
-                conn.commit()
+                # Simpan ke tabel yang sesuai
+                def insert_into_table(table_name, columns):
+                    if table_name == 'f_class_c' and not columns:
+                        cursor.execute("SHOW COLUMNS FROM f_class_c")
+                        all_columns = [row[0] for row in cursor.fetchall() if row[0] not in ['id_f_class_c', 'id_responden']]
+                        values = ['-' for _ in all_columns]
+                        columns = all_columns
+                    elif not columns:
+                        return
+                    else:
+                        values = [form_values_classification.get(col, '-') for col in columns]
+
+                    query = f"""
+                        INSERT INTO {table_name} (id_responden, {', '.join(columns)})
+                        VALUES ({', '.join(['%s'] * (len(columns) + 1))});
+                    """
+                    cursor.execute(query, (new_responden_id, *values))
+                    conn.commit()
+
+                insert_into_table('f_class_d', columns_d)
+                insert_into_table('f_class_b', columns_b)
+                insert_into_table('f_class_c', columns_c)
 
             cursor.close()
             conn.close()
-            print(insert_responden_query)
-            print("")
-            print(insert_classification_query)
 
         except Exception as e:
-            conn.rollback()  # Rollback jika ada error
+            conn.rollback()
             error = f"Terjadi kesalahan: {str(e)}"
 
     return render_template('classification.html', form_values=form_values_classification, prediction=prediction_label, error=error)
 
 @app.route('/full_classification', methods=['GET', 'POST'])
 def full_classification():
+    input_initial = ['inisial', 'umur', 'alamat', 'pekerjaan', 'pendidikan']
     input_names = ['b11', 'b12', 'b13', 'b14', 'b15',
                    'b21', 'b22', 'b23', 'b24', 'b25',
                    'b31', 'b32', 'b33', 'b34', 'b35', 'b36',
@@ -112,30 +134,82 @@ def full_classification():
                    'd111', 'd112', 'd113', 'd114', 'd115', 'd116', 'd117', 'd118', 'd119', 
                    'd121', 'd122', 'd123', 'd124', 
                    'd131', 'd132', 'd133', 'd134']
-
-    form_values = {}
+    
+    # Pemisahan kolom berdasarkan tabel
+    columns_d = [col for col in input_names if col.startswith('d')]
+    columns_b = [col for col in input_names if col.startswith('b')]
+    columns_c = [col for col in input_names if col.startswith('c')]
+    
+    form_values_classification = {}
     prediction_label = None
     error = None
 
     if request.method == 'POST':
-        # Ambil nilai dari form
-        form_values = {name: request.form.get(name, '').strip() for name in input_names}
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            # Ambil data dari form
+            form_values_initial = {name: request.form.get(name, '').strip() for name in input_initial}
+            form_values_classification = {name: request.form.get(name, '').strip() for name in input_names}
 
-        # Cek apakah ada input kosong
-        if any(value == '' for value in form_values.values()):
-            error = "Semua Form Isian Harus Diisi"
-        else:
-            # Konversi nilai ke float
-            input_data = np.array([float(value) for value in form_values.values()]).reshape(1, -1)
+            # Validasi input kosong
+            if any(value == '' for value in form_values_initial.values()) or \
+               any(value == '' for value in form_values_classification.values()):
+                error = "Semua Form Isian Harus Diisi"
+            else:
+                # Konversi data untuk prediksi
+                input_data = np.array([float(value) for value in form_values_classification.values()]).reshape(1, -1)
+                prediction = model_full.predict(input_data)[0]
+                
+                # Mapping hasil prediksi ke label risiko
+                risk_mapping = {1: 'Risiko Rendah', 2: 'Risiko Sedang', 3: 'Risiko Tinggi'}
+                prediction_label = risk_mapping.get(prediction, "Tidak Diketahui")
+                
+                # Simpan ke data_responden
+                insert_responden_query = """
+                    INSERT INTO data_responden (nama, umur, alamat, pekerjaan, pendidikan, waktu, status)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s);
+                """
+                waktu_sekarang = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                cursor.execute(insert_responden_query, (*form_values_initial.values(), waktu_sekarang, prediction_label))
+                
+                # Ambil id_responden yang baru
+                cursor.execute("SELECT LAST_INSERT_ID();")
+                new_responden_id = cursor.fetchone()[0]
+                conn.commit()
 
-            # Prediksi dengan model NB
-            prediction = model_full.predict(input_data)[0]
+                # Simpan ke tabel yang sesuai
+                def insert_into_table(table_name, columns):
+                    if table_name == 'f_class_c' and not columns:
+                        cursor.execute("SHOW COLUMNS FROM f_class_c")
+                        all_columns = [row[0] for row in cursor.fetchall() if row[0] not in ['id_f_class_c', 'id_responden']]
+                        values = ['-' for _ in all_columns]
+                        columns = all_columns
+                    elif not columns:
+                        return
+                    else:
+                        values = [form_values_classification.get(col, '-') for col in columns]
 
-            # Mapping hasil prediksi ke label risiko
-            risk_mapping = {1: 'Risiko Rendah', 2: 'Risiko Sedang', 3: 'Risiko Tinggi'}
-            prediction_label = risk_mapping.get(prediction, "Tidak Diketahui")
+                    query = f"""
+                        INSERT INTO {table_name} (id_responden, {', '.join(columns)})
+                        VALUES ({', '.join(['%s'] * (len(columns) + 1))});
+                    """
+                    cursor.execute(query, (new_responden_id, *values))
+                    conn.commit()
+                
+                insert_into_table('f_class_d', columns_d)
+                insert_into_table('f_class_b', columns_b)
+                insert_into_table('f_class_c', columns_c)
+            
+            cursor.close()
+            conn.close()
 
-    return render_template('full_classification.html', form_values=form_values, prediction=prediction_label, error=error)
+        except Exception as e:
+            conn.rollback()
+            error = f"Terjadi kesalahan: {str(e)}"
+
+    return render_template('full_classification.html', form_values=form_values_classification, prediction=prediction_label, error=error)
 
 # Bagian Admin
 @app.route('/administrator')
@@ -143,7 +217,26 @@ def administrator():
     if 'user' not in session:
         flash("Silakan login terlebih dahulu!", "warning")
         return redirect(url_for('login'))
-    return render_template('admin/dashboard.html')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT COUNT(*) FROM data_responden")
+    total_responden = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM data_responden WHERE status='Risiko Rendah'")
+    risiko_rendah = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM data_responden WHERE status='Risiko Sedang'")
+    risiko_sedang = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM data_responden WHERE status='Risiko Tinggi'")
+    risiko_tinggi = cursor.fetchone()[0]
+    
+    cursor.close()
+    conn.close()
+    
+    return render_template('admin/dashboard.html', total_responden=total_responden, risiko_rendah=risiko_rendah, risiko_sedang=risiko_sedang, risiko_tinggi=risiko_tinggi)
 
 @app.route('/dataresponden')
 def dataresponden():
@@ -178,6 +271,38 @@ def hapus_responden(id_responden):
         conn.close()
 
     return redirect(url_for('dataresponden'))
+
+import pandas as pd
+from flask import send_file
+
+@app.route('/export_data')
+def export_data():
+    if 'user' not in session:
+        flash("Silakan login terlebih dahulu!", "warning")
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    
+    query = """
+    SELECT 
+        r.waktu, r.nama, r.umur, r.alamat, r.pekerjaan, r.pendidikan,
+        b.*, c.*, d.*,
+        r.status
+    FROM data_responden r
+    LEFT JOIN f_class_b b ON r.id_responden = b.id_responden
+    LEFT JOIN f_class_c c ON r.id_responden = c.id_responden
+    LEFT JOIN f_class_d d ON r.id_responden = d.id_responden;
+    """
+
+    df = pd.read_sql(query, conn)
+    conn.close()
+
+    # Simpan ke file Excel
+    df = df.drop(columns=['id_responden', 'id_f_class_b', 'id_f_class_c', 'id_f_class_d'], errors='ignore')
+    file_path = "exported_data.xlsx"
+    df.to_excel(file_path, index=False, engine='openpyxl')
+
+    return send_file(file_path, as_attachment=True)
 
 
 

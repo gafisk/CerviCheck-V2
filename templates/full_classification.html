@@ -3,6 +3,9 @@
 {% block content %}
 <form id="predictionForm" action="{{ url_for('full_classification') }}" method="post">
   <div class="row gy-4">
+
+    {% include 'components/initial.html' %}
+
     <div class="mb-3 d-flex flex-column h-100">
       <label for="b11" class="form-label flex-grow-1 d-flex align-items-center">Apa Status perkawinan Anda
         saat ini?</label>
